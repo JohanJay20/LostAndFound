@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\VersionController;
 use App\Http\Controllers\TenantRequestController;
 
 Route::get('/', function () {
@@ -18,7 +17,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');   
 });
-  Route::post('/update-version', [VersionController::class, 'update'])->name('version.update');
 Route::get('/admin', function () {
     return view('admin.welcome');
 });

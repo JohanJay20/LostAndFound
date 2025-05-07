@@ -67,6 +67,7 @@ Route::middleware([
                 // Add more report routes as needed
             });
 
+           
             // Customize Routes
             Route::prefix('customize')->middleware('auth')->group(function () {
                 Route::get('/', [CustomizeController::class, 'index'])->name('customize.index');

@@ -12,10 +12,7 @@
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="card-title mb-0">Tenant Requests</h4>
-        <form method="POST" action="{{ route('version.update') }}">
-          @csrf
-          <button type="submit" class="btn btn-primary">Update to Latest Version</button>
-        </form>
+      
       </div>
       <p class="card-description">Hoverable table using <code>.table-hover</code></p>
 
