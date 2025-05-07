@@ -60,20 +60,16 @@ Route::middleware([
                 Route::put('/{staff}', [StaffController::class, 'update'])->name('staff.update');
                 Route::delete('/{staff}', [StaffController::class, 'destroy'])->name('staff.destroy');
             });
-
-            // Report Routes
+        
             Route::prefix('reports')->middleware('auth')->group(function () {
                 Route::get('/', [ReportController::class, 'index'])->name('report.index');
                 // Add more report routes as needed
-            });
-
-           
+            });  
             // Customize Routes
             Route::prefix('customize')->middleware('auth')->group(function () {
                 Route::get('/', [CustomizeController::class, 'index'])->name('customize.index');
                 Route::put('/', [CustomizeController::class, 'update'])->name('customize.update');  // PUT request route
                 Route::put('reset', [CustomizeController::class, 'reset'])->name('customize.reset');
-
             });
         });
 
