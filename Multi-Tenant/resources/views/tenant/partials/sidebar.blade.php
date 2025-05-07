@@ -51,5 +51,11 @@
             </a>
         </li>
         @endif
+        <li class="nav-item {{ request()->routeIs('customize.*') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('customize.index') }}">
+                <i class="menu-icon fa fa-edit"></i>
+                <span class="menu-title">Support</span>
+            </a>
+        </li>
     </ul>
 </nav>
