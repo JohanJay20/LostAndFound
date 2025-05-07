@@ -19,6 +19,12 @@
     <span class="menu-title">Tenants</span>
   </a>
 </li>
+<li class="nav-item {{ request()->routeIs('version.*') ? 'active' : '' }}">
+  <a class="nav-link" href="{{ route('version.index') }}">
+    <i class="menu-icon fa fa-group"></i>
+    <span class="menu-title">Version</span>
+  </a>
+</li>
 
           </ul>
         </nav>
