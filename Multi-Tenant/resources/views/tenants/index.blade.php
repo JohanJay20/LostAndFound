@@ -3,10 +3,20 @@
 @section('title', 'Tenant')
 
 @section('content')
+@if (session('status'))
+    <div class="alert alert-success">{{ session('status') }}</div>
+@endif
+
 <div class="col-lg-12 grid-margin stretch-card">
   <div class="card">
     <div class="card-body">
-      <h4 class="card-title">Tenant Requests</h4>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="card-title mb-0">Tenant Requests</h4>
+        <form method="POST" action="{{ route('version.update') }}">
+          @csrf
+          <button type="submit" class="btn btn-primary">Update to Latest Version</button>
+        </form>
+      </div>
       <p class="card-description">Hoverable table using <code>.table-hover</code></p>
 
       @if(session('success'))
@@ -76,9 +86,8 @@
 
                   <!-- Delete modal trigger (not for active tenants) -->
                   @if(!in_array($request->status, ['active', 'pending']))
-  <button type="button" class="btn btn-sm btn-danger" onclick="showModal('deleteModal{{ $request->id }}')">Delete</button>
-@endif
-
+                    <button type="button" class="btn btn-sm btn-danger" onclick="showModal('deleteModal{{ $request->id }}')">Delete</button>
+                  @endif
 
                   <!-- Disable modal trigger (for active tenants) -->
                   @if($request->status === 'active')
@@ -100,6 +109,7 @@
 
 <!-- Include modals partial -->
 @include('tenants.modal')
+
 <script>
   // Disable submit button on form submission and show a spinner
   document.querySelectorAll('form').forEach(function(form) {
@@ -126,7 +136,5 @@
     modal.show();
   }
 </script>
-
-
 
 @endsection
