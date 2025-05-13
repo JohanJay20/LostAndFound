@@ -48,7 +48,7 @@ async function handleUpdate() {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             body: JSON.stringify({ 
-                version: checkData.available_updates[0]?.version || 'v1.1.0' 
+                version: checkData.available_updates[0]?.version || 'v1.1' 
             })
         });
 
