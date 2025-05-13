@@ -83,7 +83,11 @@ class TenantController extends Controller
         $latestVersion = $response->json('tag_name');
         $downloadUrl = $response->json('zipball_url');
 
-        $tenant = Auth::user()->tenant; // Adjust if your relation is different
+        $tenant = Auth::user()->tenant;
+
+        if (!$tenant) {
+            return response()->json(['success' => false, 'message' => 'No tenant found for this user.']);
+        }
 
         if ($tenant->version === $latestVersion) {
             return response()->json(['success' => false, 'message' => 'Already up to date.']);
