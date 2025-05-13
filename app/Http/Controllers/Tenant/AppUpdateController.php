@@ -13,50 +13,42 @@ class AppUpdateController extends Controller
 {
     public function performUpdate(Request $request)
     {
-        $version = $request->input('version');
-        if (!$version) {
-            return response()->json(['error' => 'No version specified.'], 400);
-        }
-
-        // Fetch the release from GitHub
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . env('GITHUB_TOKEN'),
-            'Accept' => 'application/vnd.github.v3+json'
-        ])->get("https://api.github.com/repos/JohanJay20/LostAndFound/releases/tags/$version");
-
-        if ($response->failed()) {
-            return response()->json(['error' => 'Failed to fetch release.'], 500);
-        }
-
-        $release = $response->json();
-        $assets = $release['assets'] ?? [];
-
-        if (empty($assets)) {
-            return response()->json(['error' => 'No downloadable assets in this release.'], 404);
-        }
-
-        // Download the update ZIP
-        $downloadUrl = $assets[0]['browser_download_url'];
-        $zipDir = storage_path('app');
-        $zipFilePath = $zipDir . "/update-{$version}.zip";
-
-        // Ensure the directory exists
-        if (!File::exists($zipDir)) {
-            File::makeDirectory($zipDir, 0755, true);
-        }
-
-        $download = Http::withHeaders([
-            'Authorization' => 'Bearer ' . env('GITHUB_TOKEN')
-        ])->get($downloadUrl);
-
-        if ($download->failed()) {
-            return response()->json(['error' => 'Failed to download update file.'], 500);
-        }
-
-        file_put_contents($zipFilePath, $download->body());
-
-        // === AUTO-APPLY UPDATE ===
         try {
+            \Log::info('Update request received', [
+                'version' => $request->input('version'),
+                'url' => $request->url(),
+                'method' => $request->method()
+            ]);
+
+            $version = $request->input('version');
+            if (!$version) {
+                return response()->json(['error' => 'No version specified.'], 400);
+            }
+
+            // Direct ZIP download URL for the tag
+            $downloadUrl = "https://github.com/JohanJay20/LostAndFound/archive/refs/tags/{$version}.zip";
+            $zipDir = storage_path('app');
+            $zipFilePath = $zipDir . "/update-{$version}.zip";
+
+            // Ensure the directory exists
+            if (!File::exists($zipDir)) {
+                File::makeDirectory($zipDir, 0755, true);
+            }
+
+            // Download the ZIP file
+            $download = Http::get($downloadUrl);
+
+            if ($download->failed()) {
+                \Log::error('Download failed', [
+                    'status' => $download->status(),
+                    'url' => $downloadUrl
+                ]);
+                return response()->json(['error' => 'Failed to download update file.'], 500);
+            }
+
+            file_put_contents($zipFilePath, $download->body());
+
+            // === AUTO-APPLY UPDATE ===
             $extractPath = storage_path("app/update-temp-{$version}");
 
             // Ensure extract path exists
@@ -80,8 +72,25 @@ class AppUpdateController extends Controller
                 $sourceDir = $extractPath;
             }
 
+            // Directories to exclude from update
+            $excludeDirs = [
+                '.git',
+                'vendor',
+                'node_modules',
+                'storage',
+                'bootstrap/cache'
+            ];
+
+            // Files to exclude from update
+            $excludeFiles = [
+                '.env',
+                '.env.example',
+                'composer.lock',
+                'package-lock.json'
+            ];
+
             // Recursively copy files from $sourceDir to base_path()
-            $this->recurseCopy($sourceDir, base_path());
+            $this->recurseCopy($sourceDir, base_path(), $excludeDirs, $excludeFiles);
 
             // Clean up
             $this->deleteDirectory($extractPath);
@@ -90,13 +99,17 @@ class AppUpdateController extends Controller
             // Clear Laravel caches
             Artisan::call('config:clear');
             Artisan::call('view:clear');
+            Artisan::call('cache:clear');
 
-            // Optionally update version.txt
+            // Update version.txt
             file_put_contents(base_path('version.txt'), $version);
 
             return response()->json(['message' => "Update $version applied successfully."]);
         } catch (\Exception $e) {
-            \Log::error('Update failed: ' . $e->getMessage());
+            \Log::error('Update failed with exception', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json(['error' => 'Update failed: ' . $e->getMessage()], 500);
         }
     }
@@ -136,16 +149,38 @@ class AppUpdateController extends Controller
         ]);
     }
 
-    private function recurseCopy($src, $dst)
+    private function recurseCopy($src, $dst, $excludeDirs = [], $excludeFiles = [])
     {
         $dir = opendir($src);
         @mkdir($dst, 0755, true);
+        
         while (false !== ($file = readdir($dir))) {
             if (($file != '.') && ($file != '..')) {
-                if (is_dir($src . '/' . $file)) {
-                    $this->recurseCopy($src . '/' . $file, $dst . '/' . $file);
+                $srcPath = $src . '/' . $file;
+                $dstPath = $dst . '/' . $file;
+
+                // Skip excluded directories
+                if (is_dir($srcPath) && in_array($file, $excludeDirs)) {
+                    continue;
+                }
+
+                // Skip excluded files
+                if (is_file($srcPath) && in_array($file, $excludeFiles)) {
+                    continue;
+                }
+
+                if (is_dir($srcPath)) {
+                    $this->recurseCopy($srcPath, $dstPath, $excludeDirs, $excludeFiles);
                 } else {
-                    copy($src . '/' . $file, $dst . '/' . $file);
+                    try {
+                        copy($srcPath, $dstPath);
+                    } catch (\Exception $e) {
+                        \Log::warning("Failed to copy file: {$srcPath} to {$dstPath}", [
+                            'error' => $e->getMessage()
+                        ]);
+                        // Continue with other files even if one fails
+                        continue;
+                    }
                 }
             }
         }
