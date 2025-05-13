@@ -41,6 +41,15 @@
         </li>
         @endif
 
-   
+     <!-- Customize Link - Visible only for admin users -->
+        @if (tenant() && tenant('plan') !== 'Basic' && Auth::user()->role == 'admin') 
+        <!-- Check if the tenant's plan is not basic and the user is an admin -->
+        <li class="nav-item {{ request()->routeIs('customize.*') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('customize.index') }}">
+                <i class="menu-icon fa fa-edit"></i>
+                <span class="menu-title">Customize</span>
+            </a>
+        </li>
+        @endif
     </ul>
 </nav>
