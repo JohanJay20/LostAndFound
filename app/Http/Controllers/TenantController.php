@@ -9,6 +9,8 @@ use App\Models\LostAndFound;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Artisan;
 use ZipArchive;
+use Stancl\Tenancy\Tenant;
+use Stancl\Tenancy\Tenancy;
 
 class TenantController extends Controller
 {
@@ -70,52 +72,5 @@ class TenantController extends Controller
     {
         Auth::logout();
         return redirect()->route('welcome');
-    }
-    public function updateTenant(Request $request)
-    {
-        $githubApi = env('GITHUB_VERSION_API');
-        $response = Http::get($githubApi);
-
-        if (!$response->ok()) {
-            return response()->json(['success' => false, 'message' => 'Failed to fetch latest release.']);
-        }
-
-        $latestVersion = $response->json('tag_name');
-        $downloadUrl = $response->json('zipball_url');
-
-        $tenant = Auth::user()->tenant;
-
-        if (!$tenant) {
-            return response()->json(['success' => false, 'message' => 'No tenant found for this user.']);
-        }
-
-        if ($tenant->version === $latestVersion) {
-            return response()->json(['success' => false, 'message' => 'Already up to date.']);
-        }
-
-        // Download the update
-        $zipPath = storage_path("app/update_{$latestVersion}.zip");
-        $zipContent = file_get_contents($downloadUrl);
-        file_put_contents($zipPath, $zipContent);
-
-        // Extract the update
-        $extractPath = base_path(); // Adjust if needed
-        $zip = new ZipArchive;
-        if ($zip->open($zipPath) === TRUE) {
-            $zip->extractTo($extractPath);
-            $zip->close();
-        } else {
-            return response()->json(['success' => false, 'message' => 'Failed to extract update.']);
-        }
-
-        // Run migrations for this tenant
-        // tenancy()->initialize($tenant); // If using stancl/tenancy
-        Artisan::call('tenants:migrate', ['--tenant' => $tenant->id]);
-
-        // Update the version
-        $tenant->version = $latestVersion;
-        $tenant->save();
-
-        return response()->json(['success' => true]);
     }
 }

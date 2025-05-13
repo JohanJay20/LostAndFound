@@ -12,6 +12,7 @@ use App\Http\Controllers\Tenant\ReportController;
 use App\Http\Controllers\Tenant\CustomizeController;
 use App\Http\Middleware\CheckTenantStatus;
 use App\Http\Middleware\CustomizeMiddleware;  // Add this line
+use App\Http\Controllers\Tenant\AppUpdateController;
 
 // Register the tenant routes
 Route::middleware([
@@ -67,10 +68,9 @@ Route::middleware([
                 // Add more report routes as needed
             });
 
-            Route::post('/dashboard/update', [TenantController::class, 'updateTenant'])
-    ->middleware('auth')
-    ->name('tenant.dashboard.update');
 
+            Route::post('/admin/update', [AppUpdateController::class, 'performUpdate'])->name('admin.update.perform');
+            Route::get('/admin/check-update', [AppUpdateController::class, 'checkForUpdate'])->name('admin.update.check');
             // Customize Routes
             Route::prefix('customize')->middleware('auth')->group(function () {
                 Route::get('/', [CustomizeController::class, 'index'])->name('customize.index');
