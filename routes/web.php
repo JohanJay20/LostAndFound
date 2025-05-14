@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TenantRequestController;
+use App\Http\Controllers\Auth\GoogleController;
 
 Route::get('/', function () {
     return view('welcome');  // Central domain welcome page
@@ -30,5 +31,7 @@ Route::prefix('tenant/requests')->group(function () {
     Route::patch('tenant/requests/{id}/enable', [TenantRequestController::class, 'enable'])->name('tenant.requests.enable');
 });
 
+Route::get('api/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('api/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
 require __DIR__.'/auth.php';

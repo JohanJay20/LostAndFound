@@ -45,8 +45,6 @@
                                     <input type="password" name="password" class="form-control form-control-lg" id="exampleInputPassword1" placeholder="Password" required>
                                 </div>
 
-                           
-
                                 @if ($errors->any())
                                     <div class="alert alert-danger">
                                         <ul class="mb-0">
@@ -66,8 +64,16 @@
                                         <a class="text-decoration-none" href="{{ route('password.request') }}">Forgot your password?</a>
                                     </div>
                                 @endif
-
+  
                             </form>
+                            <div class="mt-4 mb-2 d-grid gap-2 justify-content-center">
+    <form action="{{ route('auth.google') }}" method="GET">
+        <button type="submit" class="btn btn-block btn-google auth-form-btn" aria-label="Login with Google">
+            <i class="ti-google me-2"></i> Connect using Google
+        </button>
+    </form>
+</div>
+
                         </div>
                     </div>
                 </div>
