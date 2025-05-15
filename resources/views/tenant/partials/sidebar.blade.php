@@ -50,6 +50,12 @@
             </a>
         </li>
         @endif
-    
+        <li class="nav-item">
+    <div class="nav-link " >
+        <i class="menu-icon fa fa-edit"></i>
+        <span class="menu-title">New Features</span>
+    </div>
+</li>
+
     </ul>
 </nav>
