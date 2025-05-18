@@ -64,20 +64,28 @@ Route::middleware([
 
             // Report Routes
             Route::prefix('reports')->middleware('auth')->group(function () {
-                Route::get('/', [ReportController::class, 'index'])->name('report.index');
-                // Add more report routes as needed
+                Route::get('/', [ReportController::class, 'index'])->name('reports.index');
+                Route::get('/download/category', [ReportController::class, 'downloadCategory'])->name('reports.download.category');
+                Route::get('/download/status', [ReportController::class, 'downloadStatus'])->name('reports.download.status');
+                Route::get('/download/all', [ReportController::class, 'downloadAll'])->name('reports.download.all');
             });
 
-
-            Route::post('/admin/update', [AppUpdateController::class, 'performUpdate'])->name('admin.update.perform');
-            Route::get('/admin/check-update', [AppUpdateController::class, 'checkForUpdate'])->name('admin.update.check');
             // Customize Routes
             Route::prefix('customize')->middleware('auth')->group(function () {
                 Route::get('/', [CustomizeController::class, 'index'])->name('customize.index');
                 Route::put('/', [CustomizeController::class, 'update'])->name('customize.update');  // PUT request route
                 Route::put('reset', [CustomizeController::class, 'reset'])->name('customize.reset');
-
             });
+
+            // Update routes
+            Route::prefix('admin')->group(function () {
+                Route::post('/update', [AppUpdateController::class, 'performUpdate'])->name('admin.update.perform');
+                Route::get('/check-update', [AppUpdateController::class, 'checkForUpdate'])->name('admin.update.check');
+            });
+
+            // New routes
+            Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+            Route::get('/reports/download', [ReportController::class, 'download'])->name('reports.download');
         });
 
     });

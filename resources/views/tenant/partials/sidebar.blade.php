@@ -33,14 +33,14 @@
         <!-- Reports Link - Visible only for admin users -->
         @if (tenant() && tenant('plan') !== 'Basic' && Auth::user()->role == 'admin') 
         <!-- Check if the tenant's plan is not basic and the user is an admin -->
-        <li class="nav-item {{ request()->routeIs('report.*') ? 'active' : '' }}">
-            <a class="nav-link" href="{{ route('report.index') }}">
+        <li class="nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('reports.index') }}">
                 <i class="menu-icon fa fa-bar-chart-o"></i>
                 <span class="menu-title">Reports</span>
             </a>
         </li>
         @endif
-        !-- Customize Link - Visible only for admin users -->
+        <!-- Customize Link - Visible only for admin users -->
         @if (tenant() && tenant('plan') !== 'Basic' && Auth::user()->role == 'admin') 
         <!-- Check if the tenant's plan is not basic and the user is an admin -->
         <li class="nav-item {{ request()->routeIs('customize.*') ? 'active' : '' }}">
@@ -50,6 +50,7 @@
             </a>
         </li>
         @endif
+   
     
     </ul>
 </nav>

@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TenantRequestController;
 
+
 Route::get('/', function () {
     return view('welcome');  // Central domain welcome page
 });
@@ -29,6 +30,7 @@ Route::prefix('tenant/requests')->group(function () {
     Route::patch('tenant/requests/{id}/disable', [TenantRequestController::class, 'disable'])->name('tenant.requests.disable');
     Route::patch('tenant/requests/{id}/enable', [TenantRequestController::class, 'enable'])->name('tenant.requests.enable');
 });
+
 
 
 require __DIR__.'/auth.php';

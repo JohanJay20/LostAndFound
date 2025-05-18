@@ -4,18 +4,13 @@
 
 @section('content')
 <div class="row">
-    <div class="space-y-4">
-        <button
-            id="updateBtn"
-            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
-            onclick="handleUpdate()"
-            aria-label="Update Application"
-            tabindex="0"
-        >
-            Update Application
-        </button>
-        <div id="updateStatus" class="mt-2 text-sm"></div>
-    </div>
+    <div class="d-flex justify-content-start">
+    <button class="btn btn-primary mb-4" id="updateBtn" onclick="handleUpdate()" aria-label="Update Application" tabindex="0">
+        Update Application
+    </button>
+</div>
+<div id="updateStatus" class="text-muted small mt-2"></div>
+
 </div>
 
 <script>
@@ -39,16 +34,16 @@ async function handleUpdate() {
         }
 
         // If updates are available, proceed with update
-        status.textContent = 'Updating...';
+    status.textContent = 'Updating...';
         
         const response = await fetch('{{ route('admin.update.perform') }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
             body: JSON.stringify({ 
-                version: checkData.available_updates[0]?.version || 'v1.1' 
+                version: checkData.available_updates[0]?.version || 'v1.1.0' 
             })
         });
 
