@@ -3,12 +3,12 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TenantRequestController;
-use App\Http\Controllers\TestController;
+
 
 Route::get('/', function () {
     return view('welcome');  // Central domain welcome page
 });
-Route::get('/test', [TestController::class, 'index'])->name('test.index');
+
 
 Route::get('/dashboard', function () {
     return view('dashboard');

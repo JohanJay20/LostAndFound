@@ -115,11 +115,8 @@ class TenantRequestController extends Controller
         return back()->with('success', 'Tenant request rejected and user notified.');
     }
 
-    
-// Update the tenant request
 public function update(Request $request, $id)
 {
-    // Validate incoming request data
     $request->validate([
         'username' => 'required|string|max:255',
         'organization' => 'required|string|max:255',
@@ -127,16 +124,19 @@ public function update(Request $request, $id)
         'address' => 'required|string|max:255',
         'email' => 'required|email',
         'plan' => 'required|string',
-        'status' => 'required|string',
     ]);
 
-    // Find the tenant request by ID
     $tenantRequest = TenantRequest::findOrFail($id);
-
-    // Update the tenant request data
     $tenantRequest->update($request->all());
 
-    // Redirect back with success message
+    // Sync plan with related tenant
+    $tenant = Tenant::where('email', $tenantRequest->email)->first();
+    if ($tenant) {
+        $tenant->update([
+            'plan' => $request->input('plan'),
+        ]);
+    }
+
     return redirect()->route('tenants.index')->with('success', 'Tenant request updated successfully!');
 }
 
